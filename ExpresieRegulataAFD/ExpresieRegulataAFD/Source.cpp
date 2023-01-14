@@ -137,6 +137,29 @@ void ConversionFromRegularExpressionToAFN(std::vector<char> polishForm)
             automatonStack.push({ C, index });
             index += 1;
         }
+        else if (c == '*')
+        {
+            std::cout << "Pentru caracterul '*' :" << std::endl;
+            std::cout << "Extragem din varful stivei un automat si aplicam inchiderea Kleene!" << std::endl;
+            
+			NondeterministicFiniteAutomaton A = automatonStack.top().first;
+			int indexA = automatonStack.top().second;
+			automatonStack.pop();
+
+			std::cout << "Aplicam inchiderea Kleene automatului:" << std::endl;
+			std::cout << "A" << indexA << std::endl;
+			A.PrintAutomaton();
+			std::cout << std::endl;
+            
+            NondeterministicFiniteAutomaton B = handler.KleeneClosingAutomaton(A, counter);
+			std::cout << "Obtinem automatul A" << index << std::endl;
+			B.PrintAutomaton();
+			std::cout << "------------------------------------------------------------" << std::endl;
+			automatonStack.push({ B, index });
+            
+			counter += 2;
+			index += 1;
+        }
     }
 }
 

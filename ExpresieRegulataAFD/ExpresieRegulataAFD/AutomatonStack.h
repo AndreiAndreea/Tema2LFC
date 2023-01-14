@@ -15,6 +15,7 @@ public:
 	NondeterministicFiniteAutomaton CreateAutomaton(std::string symbol, int counter);
 	NondeterministicFiniteAutomaton AlternateAutomatons(NondeterministicFiniteAutomaton A1, NondeterministicFiniteAutomaton A2, int counter);
 	NondeterministicFiniteAutomaton ConcatenateAutomatons(NondeterministicFiniteAutomaton A1, NondeterministicFiniteAutomaton A2);
+	NondeterministicFiniteAutomaton KleeneClosingAutomaton(NondeterministicFiniteAutomaton A1, int counter);
 	
 	std::stack<std::pair<NondeterministicFiniteAutomaton, int>> GetAutomatonStack();
 	

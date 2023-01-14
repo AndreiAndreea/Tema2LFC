@@ -66,7 +66,6 @@ NondeterministicFiniteAutomaton AutomatonStack::AlternateAutomatons(Nondetermini
 NondeterministicFiniteAutomaton AutomatonStack::ConcatenateAutomatons(NondeterministicFiniteAutomaton A1, NondeterministicFiniteAutomaton A2)
 {
 	//pentru operatia "." (concatenare)
-	//mai intai inseram toate tranzitiile din A1
 	Transitions newTransitions = A1.GetTransitions();
 	
 	//modificam starea initiala din A2 in starea finala din A1 acolo unde este cazul
@@ -88,6 +87,27 @@ NondeterministicFiniteAutomaton AutomatonStack::ConcatenateAutomatons(Nondetermi
 	}
 	
 	return NondeterministicFiniteAutomaton(MergeStates(A1.GetStates(), A2.GetStates()), MergeSymbols(A1.GetAlphabet(), A2.GetAlphabet()), newTransitions, A1.GetInitialState(), A2.GetFinalStates());
+}
+
+NondeterministicFiniteAutomaton AutomatonStack::KleeneClosingAutomaton(NondeterministicFiniteAutomaton A1, int counter)
+{
+	//pentru operatia "*" (inchidere Kleene)
+	Transitions newTransitions = A1.GetTransitions();
+	std::string state = "q";
+	std::string newInitialState = state + std::to_string(counter);
+	std::string newFinalState = state + std::to_string(counter + 1);
+	std::vector<std::string> newStates = { newInitialState };
+
+	for (auto& state : A1.GetStates())
+		newStates.push_back(state);
+	newStates.push_back(newFinalState);
+
+	newTransitions.InsertTransition(newInitialState, "-", { A1.GetInitialState(), newFinalState });
+
+	for (auto& oldfinalState : A1.GetFinalStates())
+		newTransitions.InsertTransition(oldfinalState, "-", { A1.GetInitialState(), newFinalState });
+
+	return NondeterministicFiniteAutomaton(newStates, A1.GetAlphabet(), newTransitions, newInitialState, { newFinalState });
 }
 
 std::stack<std::pair<NondeterministicFiniteAutomaton, int>> AutomatonStack::GetAutomatonStack()
