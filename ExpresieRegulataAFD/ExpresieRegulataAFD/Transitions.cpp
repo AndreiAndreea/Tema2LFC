@@ -4,30 +4,36 @@ Transitions::Transitions()
 {
 }
 
-Transitions::Transitions(Unordered_map delta, std::string states, std::string symbols)
+Transitions::Transitions(Unordered_map delta, std::vector<std::string> states, std::string symbols)
 	:m_delta(delta), m_states(states), m_symbols(symbols)
 {
 }
 
-void Transitions::InsertTransition(std::string transitionState, std::string transitionSymbol, std::string transitionResultStates)
+void Transitions::InsertTransition(std::string transitionState, std::string transitionSymbol, std::vector<std::string> transitionResultStates)
 {
 	if (!ExistsState(transitionState))
-		m_states += transitionState;
-	if (!ExistsState(transitionResultStates))
-		m_states += transitionResultStates;
+		m_states.push_back(transitionState);
+	
+	for(auto& s: transitionResultStates)
+		if (!ExistsState(s))
+			m_states.push_back(s);
+	
 	if (!ExistsSymbol(transitionSymbol))
 		m_symbols += transitionSymbol;
 
 	if (!ExistsTransition(transitionState, transitionSymbol))
 	{
 		std::pair<std::string, std::string> p = std::make_pair(transitionState, transitionSymbol);
-		m_delta.insert({ p, transitionResultStates });
+		m_delta.insert({ p, {transitionResultStates} });
 	}
 	else
 	{
 		std::pair<std::string, std::string> p = std::make_pair(transitionState, transitionSymbol);
 		auto resultState = m_delta.find(p);
-		resultState->second += transitionResultStates;
+		
+		for(auto& s: transitionResultStates)
+			if (std::find(resultState->second.begin(), resultState->second.end(), s) == resultState->second.end())
+				resultState->second.push_back(s);
 	}
 }
 
@@ -38,14 +44,13 @@ bool Transitions::ExistsTransition(std::string transitionState, std::string tran
 	return false;
 }
 
-std::string Transitions::GetTransitionResultStates(std::string transitionState, std::string transitionSymbol)
+std::vector<std::string> Transitions::GetTransitionResultStates(std::string transitionState, std::string transitionSymbol)
 {
-	//find returneazza un iterator
 	auto resultState = m_delta.find(std::make_pair(transitionState, transitionSymbol));
 	if (resultState != m_delta.end())
 		return resultState->second;
 	else
-		return "-";
+		return {};
 }
 
 void Transitions::PrintTransitions()
@@ -55,14 +60,17 @@ void Transitions::PrintTransitions()
 		if (element.second.size() == 1)
 		{
 			std::cout << "delta (" << element.first.first << ", " << element.first.second << ") = ";
-			std::cout << element.second << std::endl;
+			std::cout << element.second[0] << std::endl;
 		}
 		else
 		{
-			for (auto c : element.second)
+			std::cout << "delta (" << element.first.first << ", " << element.first.second << ") = {";
+			for (int i = 0; i < element.second.size(); i ++)
 			{
-				std::cout << "delta (" << element.first.first << ", " << element.first.second << ") = ";
-				std::cout << c << std::endl;
+				if (i != (element.second.size() - 1)) 
+					std::cout << element.second[i] << ", ";
+				else
+					std::cout << element.second[i] << "}" << std::endl;
 			}
 		}
 	}
@@ -73,7 +81,7 @@ Unordered_map Transitions::GetDeltaFunction()
 	return m_delta;
 }
 
-std::string Transitions::GetUsedStates()
+std::vector<std::string> Transitions::GetUsedStates()
 {
 	return m_states;
 }
@@ -85,8 +93,8 @@ std::string Transitions::GetUsedSymbols()
 
 bool Transitions::ExistsState(std::string state)
 {
-	for (const auto& s : m_states)
-		if (s == state[0])
+	for(auto& currentState: m_states)
+		if (state == currentState)
 			return true;
 	return false;
 }

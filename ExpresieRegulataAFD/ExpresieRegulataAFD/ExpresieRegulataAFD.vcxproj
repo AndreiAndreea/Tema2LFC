@@ -127,7 +127,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AutomatonStack.cpp" />
     <ClCompile Include="DeterministicFiniteAutomaton.cpp" />
+    <ClCompile Include="NondeterministicFiniteAutomaton.cpp" />
     <ClCompile Include="PolishForm.cpp" />
     <ClCompile Include="Source.cpp" />
     <ClCompile Include="Transitions.cpp" />
@@ -136,7 +138,9 @@
     <Text Include="inputExpression.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AutomatonStack.h" />
     <ClInclude Include="DeterministicFiniteAutomaton.h" />
+    <ClInclude Include="NondeterministicFiniteAutomaton.h" />
     <ClInclude Include="PolishForm.h" />
     <ClInclude Include="Transitions.h" />
   </ItemGroup>

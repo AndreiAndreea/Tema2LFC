@@ -15,22 +15,22 @@ struct pair_hash {
 };
 
 using TransitionFunctionInputs = std::pair<std::string, std::string>;
-using Unordered_map = std::unordered_map<TransitionFunctionInputs, std::string, pair_hash>;
+using Unordered_map = std::unordered_map<TransitionFunctionInputs, std::vector<std::string>, pair_hash>;
 
 class Transitions
 {
 public:
 	Transitions();
-	Transitions(Unordered_map delta, std::string states, std::string symbols);
+	Transitions(Unordered_map delta, std::vector<std::string> states, std::string symbols);
 
-	void InsertTransition(std::string transitionState, std::string transitionSymbol, std::string transitionResultStates);
+	void InsertTransition(std::string transitionState, std::string transitionSymbol, std::vector<std::string> transitionResultStates);
 	bool ExistsTransition(std::string transitionState, std::string transitionSymbol);
-	std::string GetTransitionResultStates(std::string transitionState, std::string transitionSymbol);
+	std::vector<std::string> GetTransitionResultStates(std::string transitionState, std::string transitionSymbol);
 	void PrintTransitions();
 
 public:
 	Unordered_map GetDeltaFunction();
-	std::string GetUsedStates();
+	std::vector<std::string> GetUsedStates();
 	std::string GetUsedSymbols();
 
 private:
@@ -39,7 +39,8 @@ private:
 
 private:
 	Unordered_map m_delta;
-	std::string m_states;
+	std::vector<std::string> m_states;
+	//std::string m_states;
 	std::string m_symbols;
 };
 

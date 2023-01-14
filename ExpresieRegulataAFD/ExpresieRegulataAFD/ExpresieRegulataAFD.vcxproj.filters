@@ -27,6 +27,12 @@
     <ClCompile Include="PolishForm.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="AutomatonStack.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="NondeterministicFiniteAutomaton.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="inputExpression.txt" />
@@ -39,6 +45,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="PolishForm.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="AutomatonStack.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NondeterministicFiniteAutomaton.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
