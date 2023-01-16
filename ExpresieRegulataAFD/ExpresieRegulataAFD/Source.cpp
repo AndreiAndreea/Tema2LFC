@@ -37,7 +37,7 @@ std::string ReadExpressionFromFile()
     return expression;
 }
 
-void DisplayRegularExpressionIfValid(std::vector<char> PF)
+bool DisplayRegularExpressionIfValid(std::vector<char> PF)
 {
     if (PF.size() != 0)
     {
@@ -47,10 +47,12 @@ void DisplayRegularExpressionIfValid(std::vector<char> PF)
             std::cout << PF[i];
         }
         std::cout << std::endl;
+        return true;
     }
     else
     {
         std::cout << "Expresia regulata nu este valida!";
+        return false;
     }
 }
 
@@ -168,23 +170,64 @@ DeterministicFiniteAutomaton ConversionFromRegularExpressionToAFD(std::vector<ch
    
 }
 
+void printMenu() {
+    std::cout << "---MENU---\n";
+    std::cout << "0. Exit\n";
+    std::cout << "1. Print Automaton.\n";
+    std::cout << "2. Print the regular expression read from file.\n";
+    std::cout << "3. Check a word.\n";
+}
+
 int main()
 {
+    int option;
+    const uint8_t exitOptionNo = 0;
+    const uint8_t printAutomatonOptionNo = 1;
+    const uint8_t printRegularExpressionOptionNo = 2;
+    const uint8_t checkWordOptionNo = 3;
+
     std::string expressionToProcess = ReadExpressionFromFile();
-    std::cout << "Expresia regulata este: ";
-    std::cout << expressionToProcess << std::endl;
 
     PolishForm polishForm(expressionToProcess);
     std::vector<char> PF = polishForm.GetPolishForm();
-    
-    DisplayRegularExpressionIfValid(PF);
 
-	auto dfa = ConversionFromRegularExpressionToAFD(PF);
+    if (DisplayRegularExpressionIfValid(PF)) {
+        auto AFD = ConversionFromRegularExpressionToAFD(PF);
+        
+        //menu implementation
+        std::string wordToCheck;
 
-    std::cout << std::endl << "Automat: " << std::endl;
-    dfa.PrintAutomaton();
-    
-    dfa.CheckWord("aabb");
+        std::cout << "^^^ Steps taken when creating the AFN from the regular expression ^^^\n\n";
+
+        do {
+            printMenu();
+            std::cout << "Please enter an option: ";
+            std::cin >> option;
+            switch (option)
+            {
+            case printAutomatonOptionNo:
+                AFD.PrintAutomaton();
+                break;
+            case printRegularExpressionOptionNo:
+                std::cout << "Expresia regulata este: ";
+                std::cout << expressionToProcess << std::endl;
+                break;
+            case checkWordOptionNo:
+                std::cout << "Please enter the word you want to check: ";
+				std::cin >> wordToCheck;
+                if (AFD.CheckWord(wordToCheck)) {
+                    std::cout << "\nThe word is accepted by the Automaton!\n";
+                }
+                else {
+                    std::cout << "\nThe word is NOT accepted by the Automaton!\n";
+                }
+                break;
+            default:
+                std::cerr << "Invalid option. Try again." << std::endl;
+                break;
+            }
+        } while (option != exitOptionNo);
+    }
     
 	return 0;
 }
