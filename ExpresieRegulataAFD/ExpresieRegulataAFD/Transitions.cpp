@@ -53,6 +53,41 @@ std::vector<std::string> Transitions::GetTransitionResultStates(std::string tran
 		return {};
 }
 
+std::vector<std::string> Transitions::GetTransitionResultStates(LambdaClosure lambdaClosure, std::string transitionSymbol)
+{
+	std::vector<std::string> resultStates;
+	for (auto& state : lambdaClosure)
+	{
+		auto transitionResultStates = GetTransitionResultStates(state, transitionSymbol);
+		resultStates.insert(resultStates.end(), transitionResultStates.begin(), transitionResultStates.end());
+	}
+	return resultStates;
+}
+
+LambdaClosure Transitions::GetLambdaClosure(std::string state)
+{
+	std::queue<std::string> statesToVisit;
+	LambdaClosure lambdaClosure;
+	statesToVisit.push(state);
+	lambdaClosure.insert(state);
+	
+	while (!statesToVisit.empty()) {
+		std::string currentState = statesToVisit.front();
+		statesToVisit.pop();
+		if (ExistsTransition(currentState, "-"))
+		{
+			std::vector<std::string> resultStates = GetTransitionResultStates(currentState, "-");
+			for (auto& s : resultStates)
+			{
+				lambdaClosure.insert(s);
+				statesToVisit.push(s);
+			}
+		}
+	}
+	
+	return lambdaClosure;
+}
+
 void Transitions::PrintTransitions()
 {
 	for (const auto& element : m_delta)

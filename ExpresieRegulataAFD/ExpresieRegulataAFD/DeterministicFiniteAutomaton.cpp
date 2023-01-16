@@ -9,6 +9,79 @@ DeterministicFiniteAutomaton::DeterministicFiniteAutomaton(std::vector<std::stri
 {
 }
 
+DeterministicFiniteAutomaton::DeterministicFiniteAutomaton(NondeterministicFiniteAutomaton nfa)
+{
+	int count = 0;
+	std::vector<std::string> states = nfa.GetStates();
+	Transitions transitions = nfa.GetTransitions();
+
+	//vector with the name of the new transition and the lambda closure
+	std::vector<std::pair<std::string, LambdaClosure>> newStates;
+
+	m_initialState = "q" + std::to_string(count) + "'";
+	m_states.push_back(m_initialState);
+	m_alphabet = nfa.GetAlphabet();
+
+	//verificat situatie cand nu are lambda-inchidere simbolul de start!!!!
+	newStates.push_back(std::make_pair(m_initialState, transitions.GetLambdaClosure(nfa.GetInitialState())));
+
+	//for each state in the newStates vector
+	for (int i = 0; i < newStates.size(); i++)
+	{
+		//for each symbol in the alphabet
+		for (int j = 0; j < m_alphabet.size(); j++)
+		{
+			auto crtState = newStates[i];
+			auto crtSymbol = m_alphabet[j];
+			//get the resuslting states from the transition function
+			std::vector<std::string> resultingStates = transitions.GetTransitionResultStates(crtState.second, std::string(1, crtSymbol));
+			//create the new lambda closure by getting the lambda closure of each resulting state and combining the results
+			LambdaClosure newLambdaClosure;
+			//get the lambda closure of each state
+			for (auto state : resultingStates) {
+				LambdaClosure lambdaClosure = transitions.GetLambdaClosure(state);
+				newLambdaClosure.insert(lambdaClosure.begin(), lambdaClosure.end());
+			}
+
+			if (newLambdaClosure.empty()) {
+				m_transitions.InsertTransition(crtState.first, std::string(1, crtSymbol), { "NULL" });
+				continue;
+			}
+
+			auto foundState = std::find_if(newStates.begin(), newStates.end(),
+				[&newLambdaClosure](const std::pair<std::string, LambdaClosure>& element)
+				{
+					return element.second == newLambdaClosure;
+				});
+
+			if (foundState == newStates.end()) {
+				//add the new state to the newStates vector
+				auto newState = std::make_pair("q" + std::to_string(++count) + "'", newLambdaClosure);
+				newStates.push_back(newState);
+				m_states.push_back(newState.first);
+				//add the new transition to the new transitions
+				m_transitions.InsertTransition(crtState.first, std::string(1, crtSymbol), { newState.first });
+
+				//check if the new state is final - if it contains a final state from the old automaton then it is final
+				for (auto state : newLambdaClosure) {
+					std::vector<std::string> finalStates = nfa.GetFinalStates();
+					if (std::find(finalStates.begin(), finalStates.end(), state) != finalStates.end()) {
+						m_finalStates.push_back(newState.first);
+						break;
+					}
+				}
+			}
+			else {
+				//get the name of the state that has the same lambda closure
+				std::string newStateName = foundState->first;
+				//add the new transition to the newTransitions vector
+				m_transitions.InsertTransition(crtState.first, std::string(1, crtSymbol), { newStateName });
+			}
+		}
+	}
+
+}
+
 bool DeterministicFiniteAutomaton::VerifyAutomaton()
 {
 	//1. multimea starilor Q sa fie finita si nevida
@@ -79,57 +152,49 @@ void DeterministicFiniteAutomaton::PrintAutomaton()
 	m_transitions.PrintTransitions();
 }
 
-std::vector<std::string> DeterministicFiniteAutomaton::GetLambdaClosure(std::vector<std::string> states)
-{
-	std::vector<std::string> lambdaClosure;
-	Unordered_map delta = m_transitions.GetDeltaFunction();
-
-	for (auto& state : states)
-	{
-		auto it = delta.find(std::make_pair(state, "-"));
-		if (it != delta.end())
-		{
-			std::cout << '(' << it->first.first << "," << it->first.second << ") = " << '{';
-			for (auto& state : it->second)
-			{
-				std::cout << state << " ";
-				lambdaClosure.push_back(state);
-			}
-			std::cout << '}' << "\n";
-		}
-	}
-	return lambdaClosure;
-}
-
 bool DeterministicFiniteAutomaton::CheckWord(std::string word)
 {
-	std::string currentState = m_initialState;
-	std::vector<std::string> currentLambdaClosure = GetLambdaClosure({ currentState });
-	Unordered_map delta = m_transitions.GetDeltaFunction();
-	std::vector<std::string> resultStates;
+	std::cout << "Cuvantul verificat este: " << word << std::endl;
+	std::string transitionInputState = m_initialState;
+	std::string transitionResultState;
+	std::string symbol;
+
+	bool isAccepted = false;
 
 	for (int i = 0; i < word.size(); i++)
 	{
-		resultStates.clear();
-		for (auto& state : currentLambdaClosure)
+		symbol = "";
+		symbol += word[i];
+
+		transitionResultState = m_transitions.GetTransitionResultStates(transitionInputState, symbol)[0];
+
+		if (transitionResultState.size() == 0)
 		{
-			auto it = delta.find(std::make_pair(state, "-"));
-			if (it != delta.end())
-			{
-				for (auto& result : it->second)
-				{
-					resultStates.push_back(result);
-				}
-			}
+			std::cout << "Nu avem stari rezultate! BLOCAJ!" << std::endl;
+			return false;
 		}
-		currentLambdaClosure = GetLambdaClosure(resultStates);
+
+		std::cout << "delta(" << transitionInputState << ", " << symbol << ") = " << transitionResultState << std::endl;
+
+		transitionInputState = transitionResultState;
+	}
+	std::cout << "Multimea starilor finale este: {";
+	for (int i = 0; i < m_finalStates.size(); i++)
+	{
+		if (i != (m_finalStates.size() - 1))
+			std::cout << m_finalStates[i] << ", ";
+		else
+			std::cout << m_finalStates[i] << "}" << std::endl;
 	}
 
-	for (auto& currentState : currentLambdaClosure)
-		if (std::find(m_finalStates.begin(), m_finalStates.end(), currentState) != m_finalStates.end())
-			return true;
-
+	if (std::find(m_finalStates.begin(), m_finalStates.end(), transitionResultState) != m_finalStates.end()) {
+		std::cout << "Multimea de stari rezultate contine cel putin o stare finala!" << std::endl;
+		return true;
+	}
+	
+	std::cout << "Multimea de stari rezultate NU contine nicio stare finala!" << std::endl;
 	return false;
+
 }
 
 bool DeterministicFiniteAutomaton::IsDeterministic()

@@ -4,6 +4,8 @@
 #include <utility>
 #include <unordered_map>
 #include <functional>
+#include <queue>
+#include <unordered_set>
 
 struct pair_hash {
 	template <class T1, class T2>
@@ -16,6 +18,7 @@ struct pair_hash {
 
 using TransitionFunctionInputs = std::pair<std::string, std::string>;
 using Unordered_map = std::unordered_map<TransitionFunctionInputs, std::vector<std::string>, pair_hash>;
+using LambdaClosure = std::unordered_set<std::string>;
 
 class Transitions
 {
@@ -26,6 +29,8 @@ public:
 	void InsertTransition(std::string transitionState, std::string transitionSymbol, std::vector<std::string> transitionResultStates);
 	bool ExistsTransition(std::string transitionState, std::string transitionSymbol);
 	std::vector<std::string> GetTransitionResultStates(std::string transitionState, std::string transitionSymbol);
+	std::vector<std::string> GetTransitionResultStates(LambdaClosure lambdaClosure, std::string transitionSymbol);
+	LambdaClosure GetLambdaClosure(std::string state);
 	void PrintTransitions();
 
 public:

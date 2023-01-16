@@ -54,7 +54,7 @@ void DisplayRegularExpressionIfValid(std::vector<char> PF)
     }
 }
 
-void ConversionFromRegularExpressionToAFN(std::vector<char> polishForm)
+DeterministicFiniteAutomaton ConversionFromRegularExpressionToAFD(std::vector<char> polishForm)
 {
     int counter = 0, index = 1;
     AutomatonStack handler;
@@ -161,6 +161,11 @@ void ConversionFromRegularExpressionToAFN(std::vector<char> polishForm)
 			index += 1;
         }
     }
+    
+	auto nfAutomaton = automatonStack.top().first;
+    
+    return DeterministicFiniteAutomaton(nfAutomaton);
+   
 }
 
 int main()
@@ -174,7 +179,12 @@ int main()
     
     DisplayRegularExpressionIfValid(PF);
 
-	ConversionFromRegularExpressionToAFN(PF);
+	auto dfa = ConversionFromRegularExpressionToAFD(PF);
 
+    std::cout << std::endl << "Automat: " << std::endl;
+    dfa.PrintAutomaton();
+    
+    dfa.CheckWord("aabb");
+    
 	return 0;
 }

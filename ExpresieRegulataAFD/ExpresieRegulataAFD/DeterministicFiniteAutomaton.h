@@ -1,5 +1,6 @@
 #pragma once
 #include "Transitions.h"
+#include "NondeterministicFiniteAutomaton.h"
 
 #include <string>
 
@@ -7,11 +8,11 @@ class DeterministicFiniteAutomaton
 {
 public:
 	DeterministicFiniteAutomaton(std::vector<std::string> states, std::string alphabet, Transitions transitions, std::string initialState, std::vector<std::string> finalStates);
+	DeterministicFiniteAutomaton(NondeterministicFiniteAutomaton nfa);
 
 	bool VerifyAutomaton();
 	void PrintAutomaton();
-	std::vector<std::string> GetLambdaClosure(std::vector<std::string> states);
-	bool CheckWord(std::string word); //de modificat
+	bool CheckWord(std::string word);
 	bool IsDeterministic();
 	
 private:

@@ -1,1 +1,1 @@
-aba(aa|bb)*c(ab)*
+(aa|b)*bb
