@@ -175,6 +175,6 @@ int main()
     DisplayRegularExpressionIfValid(PF);
 
 	ConversionFromRegularExpressionToAFN(PF);
-    
+
 	return 0;
 }

@@ -10,7 +10,8 @@ public:
 
 	bool VerifyAutomaton();
 	void PrintAutomaton();
-	//bool CheckWord(std::string word); //de modificat
+	std::vector<std::string> GetLambdaClosure(std::vector<std::string> states);
+	bool CheckWord(std::string word); //de modificat
 	bool IsDeterministic();
 	
 private:
